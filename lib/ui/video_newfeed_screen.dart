@@ -1,12 +1,11 @@
 import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_video_newfeed/api/api.dart';
 import 'package:flutter_video_newfeed/config/screen_config.dart';
 import 'package:flutter_video_newfeed/config/video_item_config.dart';
 import 'package:flutter_video_newfeed/model/video.dart';
 import 'package:flutter_video_newfeed/ui/video_item.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:lottie/lottie.dart';
 
 import '../model/video.dart';
@@ -16,9 +15,15 @@ class VideoNewFeedScreen<V extends VideoInfo> extends StatefulWidget {
   ///
   final bool keepPage;
 
+  final Future<bool> Function(bool) onLikePressed;
+  final void Function() onMorePressed;
+
   ///
   /// Screen config
   final ScreenConfig screenConfig;
+
+  /// http headers for token
+  final Map<String, String> httpHeaders;
 
   ///
   /// Video Item config
@@ -33,12 +38,39 @@ class VideoNewFeedScreen<V extends VideoInfo> extends StatefulWidget {
   /// Video Info Customizable
   ///
   final Widget Function(BuildContext context, V v)? customVideoInfoWidget;
-
+  static const List<Color> _kDefaultRainbowColors = const [
+    Colors.red,
+    Colors.orange,
+    Colors.yellow,
+    Colors.green,
+    Colors.blue,
+    Colors.indigo,
+    Colors.purple,
+  ];
   const VideoNewFeedScreen({
     this.keepPage = false,
+    required this.httpHeaders,
+    required this.onLikePressed,
+    required this.onMorePressed,
     this.screenConfig = const ScreenConfig(
       backgroundColor: Colors.black,
-      loadingWidget: CircularProgressIndicator(),
+      loadingWidget: LoadingIndicator(
+          indicatorType: Indicator.lineScale,
+
+          /// Required, The loading type of the widget
+          colors: _kDefaultRainbowColors,
+
+          /// Optional, The color collections
+          strokeWidth: 7,
+
+          /// Optional, The stroke of the line, only applicable to widget which contains line
+          backgroundColor: Colors.black,
+
+          /// Optional, Background of the widget
+          pathBackgroundColor: Colors.black
+
+          /// Optional, the stroke backgroundColor
+          ),
     ),
 
     /// video config
@@ -156,7 +188,10 @@ class _VideoNewFeedScreenState<V extends VideoInfo>
             onPageChanged: (page) {},
             itemBuilder: (context, index) {
               return VideoItemWidget(
+                onLikePressed: widget.onLikePressed,
+                onMorePressed: widget.onMorePressed,
                 videoInfo: snapshot.data![index],
+                httpHeaders: widget.httpHeaders,
                 pageIndex: index,
                 currentPageIndex: _currentPage,
                 isPaused: _isOnPageTurning,

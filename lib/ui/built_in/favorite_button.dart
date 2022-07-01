@@ -41,7 +41,6 @@ class _FavoriteButtonState extends State<FavoriteButton>
       onTap: () {
         _isFavorite = !_isFavorite;
         var s = widget.onFavoriteClicked(_isFavorite);
-        if (s == null) return;
         if (_isFavorite) {
           _controller.animateTo(1.0, duration: Duration(milliseconds: 300));
         } else {

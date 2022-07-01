@@ -26,6 +26,9 @@ class VideoItemWidget<V extends VideoInfo> extends StatefulWidget {
 //  /// Video network url
 //  ///
 //  final String url;
+  final Map<String, String> httpHeaders;
+  final Future<bool> Function(bool) onLikePressed;
+  final void Function() onMorePressed;
 
   /// Video Info Customizable
   ///
@@ -36,6 +39,9 @@ class VideoItemWidget<V extends VideoInfo> extends StatefulWidget {
 
       /// video information
       required this.videoInfo,
+      required this.httpHeaders,
+      required this.onLikePressed,
+      required this.onMorePressed,
 
       /// video config
       this.config = const VideoItemConfig(
@@ -79,15 +85,19 @@ class _VideoItemWidgetState<V extends VideoInfo>
     }
 
     return Center(
-      child: Stack(
-        children: [
-          initialized
-              ? isLandscape
-                  ? _renderLandscapeVideo()
-                  : _renderPortraitVideo()
-              : Container(),
-          _renderVideoInfo(),
-        ],
+      child: AspectRatio(
+        aspectRatio: _videoPlayerController!.value.aspectRatio,
+        child: Stack(
+          children: [
+            initialized
+                ? isLandscape
+                    ? _renderLandscapeVideo()
+                    : _renderPortraitVideo()
+                : Container(),
+            _renderVideoInfo(),
+            ControlsOverlay(controller: _videoPlayerController!),
+          ],
+        ),
       ),
     );
   }
@@ -111,8 +121,10 @@ class _VideoItemWidgetState<V extends VideoInfo>
   void _initVideoController() {
     if (widget.videoInfo.url == null) return;
     // Init video from network url
-    _videoPlayerController =
-        VideoPlayerController.network(widget.videoInfo.url!);
+    _videoPlayerController = VideoPlayerController.network(
+        widget.videoInfo.url!,
+        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+        httpHeaders: widget.httpHeaders);
     _videoPlayerController!.addListener(_videoListener);
     _videoPlayerController!.initialize().then((_) {
       setState(() {
@@ -208,7 +220,10 @@ class _VideoItemWidgetState<V extends VideoInfo>
       height: h,
       child: widget.customVideoInfoWidget != null
           ? widget.customVideoInfoWidget
-          : DefaultVideoInfoWidget(),
+          : DefaultVideoInfoWidget(
+              onLikePressed: widget.onLikePressed,
+              onMorePressed: widget.onMorePressed,
+              videoinfo: widget.videoInfo),
     );
   }
 
@@ -225,5 +240,60 @@ class _VideoItemWidgetState<V extends VideoInfo>
     } else {
       _videoPlayerController?.play().then((value) {});
     }
+  }
+}
+
+//  class RenderLandscapeVideo extends StatelessWidget {
+//     const RenderLandscapeVideo({Key? key}) : super(key: key);
+
+//     @override
+//     Widget build(BuildContext context) {
+//       if (!initialized) return Container();
+//     if (_videoPlayerController == null) return Container();
+//     return Center(
+//       child: AspectRatio(
+//         child: VisibilityDetector(
+//             child: VideoPlayer(_videoPlayerController!),
+//             onVisibilityChanged: _handleVisibilityDetector,
+//             key: Key('key_${widget.currentPageIndex}')),
+//         aspectRatio: _videoPlayerController!.value.aspectRatio,
+//       ),
+//     );
+//     }
+//   }
+
+class ControlsOverlay extends StatelessWidget {
+  const ControlsOverlay({Key? key, required this.controller}) : super(key: key);
+
+  final VideoPlayerController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 50),
+          reverseDuration: const Duration(milliseconds: 200),
+          child: controller.value.isPlaying
+              ? const SizedBox.shrink()
+              : Container(
+                  color: Colors.black26,
+                  child: const Center(
+                    child: Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 100.0,
+                      semanticLabel: 'Play',
+                    ),
+                  ),
+                ),
+        ),
+        GestureDetector(
+          onTap: () {
+            controller.value.isPlaying ? controller.pause() : controller.play();
+          },
+        ),
+      ],
+    );
   }
 }

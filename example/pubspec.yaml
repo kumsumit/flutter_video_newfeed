@@ -23,7 +23,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  permission_handler: ^10.0.0
+  path_provider: ^2.0.11
   flutter_video_newfeed:
     path: ../
   # The following adds the Cupertino Icons font to your application.
@@ -49,6 +50,12 @@ flutter:
   assets:
     - assets/lottie_heart.json
     - assets/no_result.json
+    - assets/flutter-mark-square-64.png
+    - assets/Butterfly-209.mp4
+    - assets/Butterfly-209.webm
+    - assets/bumble_bee_captions.srt
+    - assets/bumble_bee_captions.vtt
+    - assets/Audio.mp3
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

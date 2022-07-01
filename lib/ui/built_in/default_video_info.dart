@@ -1,10 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:flutter_video_newfeed/flutter_video_newfeed.dart';
 
 import 'favorite_button.dart';
 
 class DefaultVideoInfoWidget extends StatelessWidget {
+  final VideoInfo videoinfo;
+  final Future<bool> Function(bool) onLikePressed;
+  final void Function() onMorePressed;
+  const DefaultVideoInfoWidget({
+    Key? key,
+    required this.videoinfo,
+    required this.onLikePressed,
+    required this.onMorePressed,
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -24,6 +35,14 @@ class DefaultVideoInfoWidget extends StatelessWidget {
                   _userNameAndTimeUploadedWidget(),
                   SizedBox(height: 8.0),
 
+                  /// location widget
+                  ///
+                  if (videoinfo.location != null) _locationWidget(),
+                  if (videoinfo.location != null) SizedBox(height: 8.0),
+
+                  _timeuploadWidget(),
+                  SizedBox(height: 8.0),
+
                   /// rainbow brand
                   ///
                   _rainBowBrandWidget(),
@@ -31,8 +50,8 @@ class DefaultVideoInfoWidget extends StatelessWidget {
 
                   /// song name
                   ///
-                  _songNameWidget(),
-                  SizedBox(height: 8.0),
+                  if (videoinfo.songName != null) _songNameWidget(),
+                  if (videoinfo.songName != null) SizedBox(height: 8.0),
                 ],
               ),
 
@@ -46,34 +65,108 @@ class DefaultVideoInfoWidget extends StatelessWidget {
     );
   }
 
+  Widget _locationWidget() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.location_on,
+          color: Colors.white,
+          size: 16,
+        ),
+        SizedBox(width: 8.0),
+        Container(
+          width: 220,
+          child: Text(
+            videoinfo.location ?? "",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
   /// Like heart icon: tap to increase like number
   /// More option: tap to share or edit
   ///
   Widget _likeMoreWidget() {
+    // String like = "0";
+    // if (videoinfo.numberOfLikes != null) {
+    //   if (videoinfo.numberOfLikes! < 1000) {
+    //     like = videoinfo.numberOfLikes.toString();
+    //   } else if (videoinfo.numberOfLikes! > 1000000) {
+    //     like = (videoinfo.numberOfLikes! / 1000).toStringAsFixed(3) + 'k';
+    //   } else {
+    //     (videoinfo.numberOfLikes! / 1000000.0).toStringAsFixed(3) + 'm';
+    //   }
+    // }
+    // String view = "0";
+    // if (videoinfo.numberOfViews != null) {
+    //   if (videoinfo.numberOfViews! < 1000) {
+    //     view = videoinfo.numberOfViews.toString();
+    //   } else if (videoinfo.numberOfViews! > 1000 &&
+    //       videoinfo.numberOfViews! < 1000000) {
+    //     view = (videoinfo.numberOfViews! / 1000).toStringAsFixed(3) + 'k';
+    //   } else {
+    //     (videoinfo.numberOfViews! / 1000000.0).toStringAsFixed(3) + 'm';
+    //   }
+    // }
     return Container(
       alignment: Alignment.centerRight,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            "123.4k",
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
-                height: 0.16,
-                fontFamily: "Inter",
-                color: Colors.white),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Icon(
+                Icons.visibility,
+                color: Colors.white,
+                size: 16,
+              ),
+              SizedBox(width: 8.0),
+              Text(
+                (videoinfo.numberOfViews ?? 0).toString(),
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    height: 0.16,
+                    fontFamily: "Inter",
+                    color: Colors.white),
+              ),
+            ],
+          ),
+          SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Icon(
+                Icons.favorite,
+                color: Colors.white,
+                size: 14,
+              ),
+              SizedBox(width: 8.0),
+              Text(
+                (videoinfo.numberOfLikes ?? 0).toString(),
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    height: 0.16,
+                    fontFamily: "Inter",
+                    color: Colors.white),
+              ),
+            ],
           ),
           SizedBox(height: 5),
           FavoriteButton(
-            initFavorite: false,
-            onFavoriteClicked: (liked) {
-              return Future.value(!liked);
-            },
+            initFavorite: videoinfo.liked ?? false,
+            onFavoriteClicked: onLikePressed,
           ),
           SizedBox(height: 15),
           InkWell(
-            onTap: () {},
+            onTap: onMorePressed,
             child: Icon(
               Icons.more_horiz,
               color: Colors.white,
@@ -103,7 +196,7 @@ class DefaultVideoInfoWidget extends StatelessWidget {
           height: 20,
           child: Center(
             child: Marquee(
-              text: "Đưa tay lên nào, mãi bên nhau bạn nhé",
+              text: videoinfo.songName ?? "",
               style: TextStyle(color: Colors.white),
               scrollAxis: Axis.horizontal,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +220,7 @@ class DefaultVideoInfoWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(
-          Icons.location_on,
+          CupertinoIcons.compass,
           color: Colors.white,
           size: 16,
         ),
@@ -141,7 +234,31 @@ class DefaultVideoInfoWidget extends StatelessWidget {
         Container(
           width: 220,
           child: Text(
-            "Branch name",
+            videoinfo.category ?? "",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _timeuploadWidget() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.timer_outlined,
+          color: Colors.white,
+          size: 16,
+        ),
+        SizedBox(width: 8.0),
+        Container(
+          width: 220,
+          child: Text(
+            videoinfo.uploadTime != null
+                ? timeago.format(videoinfo.uploadTime!)
+                : "",
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -152,11 +269,12 @@ class DefaultVideoInfoWidget extends StatelessWidget {
   /// Show user name and the time video uploaded
   ///
   Widget _userNameAndTimeUploadedWidget() {
+    print(videoinfo.uploadTime);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          "Owner name",
+          videoinfo.userName ?? "",
           style: TextStyle(color: Colors.white),
         ),
         Row(
@@ -168,10 +286,21 @@ class DefaultVideoInfoWidget extends StatelessWidget {
               decoration: BoxDecoration(
                   color: Colors.white, borderRadius: BorderRadius.circular(3)),
             ),
-            Text(
-              "12w ago",
-              textAlign: TextAlign.end,
-              style: TextStyle(color: Colors.white),
+            InkWell(
+              onTap: () {
+                print("following");
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10)),
+                child: Text(
+                  "follow",
+                  textAlign: TextAlign.end,
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ),
             ),
           ],
         )
