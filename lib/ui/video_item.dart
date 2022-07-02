@@ -85,19 +85,16 @@ class _VideoItemWidgetState<V extends VideoInfo>
     }
 
     return Center(
-      child: AspectRatio(
-        aspectRatio: _videoPlayerController!.value.aspectRatio,
-        child: Stack(
-          children: [
-            initialized
-                ? isLandscape
-                    ? _renderLandscapeVideo()
-                    : _renderPortraitVideo()
-                : Container(),
-            ControlsOverlay(controller: _videoPlayerController!),
-            _renderVideoInfo(),
-          ],
-        ),
+      child: Stack(
+        children: [
+          initialized
+              ? isLandscape
+                  ? _renderLandscapeVideo()
+                  : _renderPortraitVideo()
+              : Container(),
+          ControlsOverlay(controller: _videoPlayerController!),
+          _renderVideoInfo(),
+        ],
       ),
     );
   }
