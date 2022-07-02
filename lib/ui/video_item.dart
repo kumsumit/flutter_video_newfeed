@@ -94,8 +94,8 @@ class _VideoItemWidgetState<V extends VideoInfo>
                     ? _renderLandscapeVideo()
                     : _renderPortraitVideo()
                 : Container(),
-            _renderVideoInfo(),
             ControlsOverlay(controller: _videoPlayerController!),
+            _renderVideoInfo(),
           ],
         ),
       ),
