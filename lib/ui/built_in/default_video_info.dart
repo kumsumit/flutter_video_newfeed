@@ -119,6 +119,7 @@ class DefaultVideoInfoWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Icon(
@@ -140,6 +141,7 @@ class DefaultVideoInfoWidget extends StatelessWidget {
           ),
           SizedBox(height: 5),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Icon(
