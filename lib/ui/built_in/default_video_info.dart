@@ -118,26 +118,23 @@ class DefaultVideoInfoWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Icon(
-                Icons.visibility,
-                color: Colors.white,
-                size: 16,
-              ),
-              SizedBox(width: 8.0),
-              Text(
-                (videoinfo.numberOfViews ?? 0).toString(),
-                style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                    height: 0.16,
-                    fontFamily: "Inter",
-                    color: Colors.white),
-              ),
-            ],
+          RichText(
+            text: TextSpan(
+              children: [
+                WidgetSpan(
+                  child: Icon(Icons.visibility, color: Colors.white, size: 14),
+                ),
+                TextSpan(
+                  text: " ${videoinfo.numberOfViews ?? 0}",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                      height: 0.16,
+                      fontFamily: "Inter",
+                      color: Colors.white),
+                ),
+              ],
+            ),
           ),
           SizedBox(height: 5),
           RichText(
@@ -158,27 +155,6 @@ class DefaultVideoInfoWidget extends StatelessWidget {
               ],
             ),
           ),
-          // Row(
-          //   crossAxisAlignment: CrossAxisAlignment.end,
-          //   mainAxisAlignment: MainAxisAlignment.end,
-          //   children: [
-          //     Icon(
-          //       Icons.favorite,
-          //       color: Colors.white,
-          //       size: 14,
-          //     ),
-          //     SizedBox(width: 8.0),
-          //     Text(
-          //       (videoinfo.numberOfLikes ?? 0).toString(),
-          //       style: TextStyle(
-          //           fontWeight: FontWeight.w600,
-          //           fontSize: 12,
-          //           height: 0.16,
-          //           fontFamily: "Inter",
-          //           color: Colors.white),
-          //     ),
-          //   ],
-          // ),
           SizedBox(height: 5),
           FavoriteButton(
             initFavorite: videoinfo.liked ?? false,
